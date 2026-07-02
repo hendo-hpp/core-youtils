@@ -1,0 +1,29 @@
+# output directories
+build/
+bin/
+*/build/
+*/bin/
+
+# cmake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+install_manifest.txt
+
+# ide
+.vscode/
+
+# nvim
+*.sw?
+.*.sw?
+*.un~
+*~
+.netrwhist
+
+# binaries
+*.exe
+*.out
+*.bin
+*.so
+*.a
