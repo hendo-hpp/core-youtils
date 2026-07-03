@@ -8,6 +8,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#define BUFFER_SIZE 4096
+
 void handle_flags(const char *flags, MyCatConfig *config) {
     for (int i = 0; flags[i] != '\0'; i++) {
         switch (flags[i]) {
@@ -46,10 +48,30 @@ void handle_flags(const char *flags, MyCatConfig *config) {
 }
 
 void process_fd(int fd, const MyCatConfig *config) {
-    // TODO: implement proccess_fd pass
-    // char test_buf[64];
-    // int bytes_read = read(fd, test_buf, 64);
-    // write(STDOUT_FILENO, test_buf, bytes_read);
+    char buffer[BUFFER_SIZE];
+
+    int line_number = 1;
+    bool prev_newline = true;
+
+    ssize_t bytes_read;
+    while ((bytes_read = read(fd, buffer, BUFFER_SIZE)) > 0) {
+        for (ssize_t i = 0; i < bytes_read ; i++) {
+            char char_to_write = buffer[i];
+
+            if (config->squeeze_blank) {
+
+            }
+
+            if (config->number_lines) {
+
+            }
+            
+
+            write(STDOUT_FILENO, &char_to_write, 1);
+        }
+    }
+
+    write(STDOUT_FILENO, "\n", 1);
 }
 
 int main(int argc, char **argv) {
