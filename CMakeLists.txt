@@ -29,6 +29,13 @@ add_executable(my_ls
 )
 target_link_libraries(my_ls PRIVATE util_shared)
 
+# custom wc
+add_executable(my_wc 
+    src/wc/my_wc.c 
+    src/wc/my_wc.h
+)
+target_link_libraries(my_wc PRIVATE util_shared)
+
 include(${CMAKE_SOURCE_DIR}/cmake/format.cmake)
 enable_clang_format(util_shared)
 enable_clang_format(my_cat)
