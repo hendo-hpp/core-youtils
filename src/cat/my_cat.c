@@ -8,9 +8,11 @@
 #include <string.h>
 #include <unistd.h>
 
-void handle_flags(const char *flags, MyCatConfig *config) {
-    for (int i = 0; flags[i] != '\0'; i++) {
-        switch (flags[i]) {
+#define BUFFER_SIZE 4096
+
+void handle_flags(const char *flags, cat_config *config) {
+    while (*flags) {
+        switch (*flags) {
         case 'A':
             config->show_all = true;
             break;
@@ -39,31 +41,47 @@ void handle_flags(const char *flags, MyCatConfig *config) {
             config->show_non_printing = true;
             break;
         default:
-            log_flag_error(flags[i]);
+            log_flag_error(*flags);
             _exit(1);
         }
+        flags++;
     }
 }
 
-void process_fd(int fd, const MyCatConfig *config) {
-    // TODO: implement proccess_fd pass
-    // char test_buf[64];
-    // int bytes_read = read(fd, test_buf, 64);
-    // write(STDOUT_FILENO, test_buf, bytes_read);
+void process_fd(int fd, const cat_config *config) {
+    char buffer[BUFFER_SIZE];
+
+    int line_number = 1;
+    bool prev_newline = true;
+
+    ssize_t bytes_read;
+    while ((bytes_read = read(fd, buffer, BUFFER_SIZE)) > 0) {
+        for (ssize_t i = 0; i < bytes_read; i++) {
+            char char_to_write = buffer[i];
+
+            if (config->squeeze_blank) {}
+
+            if (config->number_lines) {}
+
+            write(STDOUT_FILENO, &char_to_write, 1);
+        }
+    }
+
+    write(STDOUT_FILENO, "\n", 1);
 }
 
 int main(int argc, char **argv) {
-    MyCatConfig config = {0};
+    cat_config conf = {0};
 
     if (argc == 1) {
-        process_fd(STDIN_FILENO, &config);
+        process_fd(STDIN_FILENO, &conf);
         return 0;
     }
 
     // prescan for all flags specified by user
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] == '-') {
-            handle_flags(argv[i] + 1, &config);
+            handle_flags(argv[i] + 1, &conf);
         }
     }
 
@@ -78,7 +96,7 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        process_fd(input_fd, &config);
+        process_fd(input_fd, &conf);
         close(input_fd);
     }
 
