@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <limits.h>
 
 #define BUFFER_SIZE 4096
 
@@ -126,17 +127,22 @@ void process_fd(int fd, const wc_config *config) {
 int main(int argc, char **argv) {
     wc_config conf = {0};
 
+    int first_arg_idx = INT_MAX;
     int num_files = 0;
-
-    if (argc == 1) {
-        process_fd(STDIN_FILENO, &conf);
-        return 0;
-    }
 
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] == '-') {
             handle_flags(argv[i] + 1, &conf);
         }
+        else if (i < first_arg_idx) {
+            first_arg_idx = i;
+        }
+    }
+
+    if (first_arg_idx == INT_MAX) {
+        process_fd(STDIN_FILENO, &conf);
+        write(STDOUT_FILENO, "\n", 1);
+        return 0;
     }
 
     for (int i = 1; i < argc; i++) {
