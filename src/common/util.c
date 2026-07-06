@@ -1,6 +1,6 @@
 #include "util.h"
 
-#include <limits.h>
+#include <linux/limits.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -9,6 +9,10 @@
 #endif
 
 #define MAX_INT_LEN 20
+
+#ifndef NAME_MAX 
+#define NAME_MAX 255
+#endif
 
 size_t lenstr(const char *str) {
     if (str == NULL) {
@@ -27,38 +31,57 @@ bool is_whitespace(char c) {
             c == '\f');
 }
 
-void log_flag_error(const char flag) {
-    char buffer[32];
-    int buffer_idx = 0;
+void log_dir_open_error(const char *dir_name) {
+    char buff[NAME_MAX + 32];
+    int buff_idx = 0;
 
-    const char *msg = "invalid option: -";
+    const char *msg = "could not open directory: ";
+
     while (*msg) {
-        buffer[buffer_idx++] = *msg++;
+        buff[buff_idx++] = *msg++;
     }
 
-    buffer[buffer_idx++] = flag;
-    buffer[buffer_idx++] = '\n';
+    while (*dir_name) {
+        buff[buff_idx++] = *dir_name++;
+    }
 
-    write(STDERR_FILENO, buffer, buffer_idx);
+    buff[buff_idx++] = '\n';
+
+    write(STDOUT_FILENO, buff, buff_idx);
 }
 
 void log_file_open_error(const char *file_name) {
-    char buffer[PATH_MAX + 32];
-    int buffer_idx = 0;
+    char buff[PATH_MAX + 32];
+    int buff_idx = 0;
 
     const char *msg = "could not find file: ";
 
     while (*msg) {
-        buffer[buffer_idx++] = *msg++;
+        buff[buff_idx++] = *msg++;
     }
 
     while (*file_name) {
-        buffer[buffer_idx++] = *file_name++;
+        buff[buff_idx++] = *file_name++;
     }
 
-    buffer[buffer_idx++] = '\n';
+    buff[buff_idx++] = '\n';
 
-    write(STDERR_FILENO, buffer, buffer_idx);
+    write(STDERR_FILENO, buff, buff_idx);
+}
+
+void log_flag_error(const char flag) {
+    char buff[32];
+    int buff_idx = 0;
+
+    const char *msg = "invalid option: -";
+    while (*msg) {
+        buff[buff_idx++] = *msg++;
+    }
+
+    buff[buff_idx++] = flag;
+    buff[buff_idx++] = '\n';
+
+    write(STDERR_FILENO, buff, buff_idx);
 }
 
 void writef_int(int val) {
